@@ -4,6 +4,7 @@ import numpy as np
 import pdb
 
 WAIT = 1000
+DEBUG = False
 
 def resize_face(w, h):
     # resize face
@@ -13,11 +14,28 @@ def resize_face(w, h):
     return small
 
 def face_swap(face, img, xPos, yPos):
+
+    if DEBUG:
+        cv2.imshow("Face before", face)
+        cv2.waitKey(200)
+
+    # split out the alpha channel
+    b,g,r,mask = cv2.split(face)
+    # do a threshold mask to zero out alpha 0
+    face = cv2.bitwise_and(face, face, mask=mask)
+
+    if DEBUG:
+        cv2.imshow("Face after", face)
+        cv2.waitKey(200)
+
     # Create a blank image with the face positioned in the correct location
-    blank_image = np.zeros((img.shape[0],img.shape[1],3), np.uint8)
+    blank_image = np.zeros((img.shape[0],img.shape[1],4), np.uint8)
     blank_image[yPos : yPos+face.shape[0], xPos: xPos+face.shape[1]] = face
     # idea from http://stackoverflow.com/questions/12881926/create-a-new-rgb-opencv-image-using-python
     
+    # drop the alpha channel
+    blank_image = blank_image[:, :, :3]
+
     # Find locations of indices to slice
     locs = np.where(blank_image != 0)
     # idea from http://stackoverflow.com/questions/41572887/equivalent-of-copyto-in-python-opencv-bindings
@@ -29,7 +47,7 @@ def face_swap(face, img, xPos, yPos):
 
 # Get user supplied values
 imagePath = sys.argv[1]
-cascPath = sys.argv[2]
+cascPath = "haarcascade_frontalface_default.xml" # sys.argv[2] 
 
 # Create the haar cascade
 faceCascade = cv2.CascadeClassifier(cascPath)
@@ -49,7 +67,7 @@ faces = faceCascade.detectMultiScale(
 
 print("Found {0} faces!".format(len(faces)))
 
-faceImg = cv2.imread("face.png")
+faceImg = cv2.imread("face.png", -1)
 
 # Draw a rectangle around the faces
 for (x, y, w, h) in faces:
