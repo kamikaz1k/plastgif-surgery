@@ -93,7 +93,12 @@ if __name__ == "__main__":
     imagePath = sys.argv[1]
     facePath = sys.argv[2]
 
-    print "arguments given", imagePath, facePath
+    if len(sys.argv) < 4:
+        outputPath = "output"
+    else:
+        outputPath = sys.argv[3]
+
+    print "arguments given", imagePath, facePath, outputPath
 
     face = cv2.imread(facePath, -1)
 
@@ -106,12 +111,19 @@ if __name__ == "__main__":
             r,g,b,a = cv2.split(image)
             image = cv2.merge((b,g,r))
             image = find_and_replace(image, face)
-            output.append(image)
+            # BGR -> RGB // from: http://stackoverflow.com/a/39270509/4765841
+            output.append(image[:,:,::-1])
             if DEBUG:
-                cv2.imshow("Faces found", output[-1])
+                cv2.imshow("BGR", output[-1])
                 cv2.waitKey(0)
-        pdb.set_trace()
-        imageio.mimwrite("output.gif", output)
+
+                cv2.imshow("RGB", output[-1][:,:,::-1])
+                cv2.waitKey(0)
+
+        if DEBUG:
+            pdb.set_trace()
+
+        imageio.mimwrite(outputPath + ".gif", output)
 
     else:
         # Read the image
