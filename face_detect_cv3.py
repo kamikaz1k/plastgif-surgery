@@ -15,26 +15,32 @@ def resize_face(w, h):
 
 def face_swap(face, img, xPos, yPos):
 
+    hasAlpha = True if face.shape[2] == 4 else False
+    if hasAlpha and DEBUG:
+        print "It has alpha channel!"
+
     if DEBUG:
         cv2.imshow("Face before", face)
         cv2.waitKey(200)
 
     # split out the alpha channel
-    b,g,r,mask = cv2.split(face)
-    # do a threshold mask to zero out alpha 0
-    face = cv2.bitwise_and(face, face, mask=mask)
+    if hasAlpha:
+        b,g,r,mask = cv2.split(face)
+        # do a threshold mask to zero out alpha 0
+        face = cv2.bitwise_and(face, face, mask=mask)
 
     if DEBUG:
         cv2.imshow("Face after", face)
         cv2.waitKey(200)
 
     # Create a blank image with the face positioned in the correct location
-    blank_image = np.zeros((img.shape[0],img.shape[1],4), np.uint8)
+    blank_image = np.zeros((img.shape[0], img.shape[1], face.shape[2]), np.uint8)
     blank_image[yPos : yPos+face.shape[0], xPos: xPos+face.shape[1]] = face
     # idea from http://stackoverflow.com/questions/12881926/create-a-new-rgb-opencv-image-using-python
     
     # drop the alpha channel
-    blank_image = blank_image[:, :, :3]
+    if hasAlpha:
+        blank_image = blank_image[:, :, :3]
 
     # Find locations of indices to slice
     locs = np.where(blank_image != 0)
@@ -61,13 +67,14 @@ faces = faceCascade.detectMultiScale(
     gray,
     scaleFactor=1.1,
     minNeighbors=5,
-    minSize=(30, 30)
-    #flags = cv2.CV_HAAR_SCALE_IMAGE
+    minSize=(30, 30),
+    # flags = cv2.CASCADE_SCALE_IMAGE
 )
 
 print("Found {0} faces!".format(len(faces)))
 
-faceImg = cv2.imread("face.png", -1)
+# faceImg = cv2.imread("face.png", -1)
+faceImg = cv2.imread(sys.argv[2], -1)
 
 # Draw a rectangle around the faces
 for (x, y, w, h) in faces:
