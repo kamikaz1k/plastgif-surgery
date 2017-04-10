@@ -24,9 +24,20 @@ If the image has any faces, it will copy over it with the face image.
 **Arguments:**
 arg1 -- `<source>`
 arg2 -- `<face>`
+
 `<source>` image can be any format supported by opencv
 `<face>` image can be any format support by opencv
 If `<face>` is a PNG with an alpha channel, program will try to use to it
+
+## Example Input:
+`python face_detec_cv3.py source.gif face.png output`
+
+source:
+![source.gif](source.gif)
+face:
+![face.png](face.png)
+Output:
+![output.gif](output.gif)
 
 # All the things I leaned to get this thing working:
 * Inspiration: http://blog.zikes.me/post/how-i-ruined-office-productivity-with-a-slack-bot/
