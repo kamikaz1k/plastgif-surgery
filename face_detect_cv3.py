@@ -51,38 +51,49 @@ def face_swap(face, img, xPos, yPos):
     # cv2.imshow("Face swap", img)
     # cv2.waitKey(WAIT)
 
-# Get user supplied values
-imagePath = sys.argv[1]
-cascPath = "haarcascade_frontalface_default.xml" # sys.argv[2] 
+if __name__ == "__main__":
+    '''Takes a source image and a face image as arguments. 
+    If the image has any faces, it will copy over it with the face image 
 
-# Create the haar cascade
-faceCascade = cv2.CascadeClassifier(cascPath)
+    Arguments:
+    arg1 -- <source>
+    arg2 -- <face>
+    <source> image can be any format supported by opencv
+    <face> image can be any format support by opencv. 
+    If <face> is a PNG with an alpha channel, program will try to use to it
+    '''
+    # Get user supplied values
+    imagePath = sys.argv[1]
+    cascPath = "haarcascade_frontalface_default.xml" # sys.argv[2] 
 
-# Read the image
-image = cv2.imread(imagePath)
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Create the haar cascade
+    faceCascade = cv2.CascadeClassifier(cascPath)
 
-# Detect faces in the image
-faces = faceCascade.detectMultiScale(
-    gray,
-    scaleFactor=1.1,
-    minNeighbors=5,
-    minSize=(30, 30),
-    # flags = cv2.CASCADE_SCALE_IMAGE
-)
+    # Read the image
+    image = cv2.imread(imagePath)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-print("Found {0} faces!".format(len(faces)))
+    # Detect faces in the image
+    faces = faceCascade.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(30, 30),
+        # flags = cv2.CASCADE_SCALE_IMAGE
+    )
 
-# faceImg = cv2.imread("face.png", -1)
-faceImg = cv2.imread(sys.argv[2], -1)
+    print("Found {0} faces!".format(len(faces)))
 
-# Draw a rectangle around the faces
-for (x, y, w, h) in faces:
-    # cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    resized = resize_face(w, h)
-    face_swap(resized, image, x, y)
+    # faceImg = cv2.imread("face.png", -1)
+    faceImg = cv2.imread(sys.argv[2], -1)
 
-cv2.imshow("Faces found", image)
-cv2.waitKey(0)
+    # Draw a rectangle around the faces
+    for (x, y, w, h) in faces:
+        # cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        resized = resize_face(w, h)
+        face_swap(resized, image, x, y)
+
+    cv2.imshow("Faces found", image)
+    cv2.waitKey(0)
 
 # Original from https://realpython.com/blog/python/face-recognition-with-python/
