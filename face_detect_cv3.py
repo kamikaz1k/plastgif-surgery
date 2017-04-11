@@ -100,19 +100,18 @@ if __name__ == "__main__":
 
     print "arguments given", imagePath, facePath, outputPath
 
-    face = cv2.imread(facePath, -1)
 
     # if gif
     if imagePath.endswith("gif"):
+        # Read in images
         images = imageio.mimread(imagePath)
+        face = imageio.imread(facePath)
         output = []
+
         for image in images:
-            # switch from RGB to BGR
-            r,g,b,a = cv2.split(image)
-            image = cv2.merge((b,g,r))
             image = find_and_replace(image, face)
-            # BGR -> RGB // from: http://stackoverflow.com/a/39270509/4765841
-            output.append(image[:,:,::-1])
+            output.append(image)
+            
             if DEBUG:
                 cv2.imshow("BGR", output[-1])
                 cv2.waitKey(0)
@@ -126,8 +125,9 @@ if __name__ == "__main__":
         imageio.mimwrite(outputPath + ".gif", output)
 
     else:
-        # Read the image
+        # Read the images
         image = cv2.imread(imagePath)
+        face = cv2.imread(facePath, -1)
 
         image = find_and_replace(image, face)
 
