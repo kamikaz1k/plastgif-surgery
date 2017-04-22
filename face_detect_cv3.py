@@ -41,16 +41,19 @@ def face_swap(face, img, xPos, yPos):
     
     # drop the alpha channel
     if hasAlpha:
+        face = face[:,:,:3]
         blank_image = blank_image[:, :, :3]
 
     # Find locations of indices to slice
-    locs = np.where(blank_image != 0)
+    locs = np.where(face != 0)
     # idea from http://stackoverflow.com/questions/41572887/equivalent-of-copyto-in-python-opencv-bindings
 
     # Slice the indices for the face location
-    img[locs[0], locs[1], locs[2]] = blank_image[locs[0], locs[1], locs[2]]
-    # cv2.imshow("Face swap", img)
-    # cv2.waitKey(WAIT)
+    img[locs[0]+yPos, locs[1]+xPos, locs[2]] = face[locs[0], locs[1], locs[2]]
+    
+    if DEBUG:
+        cv2.imshow("Face swap", img)
+        cv2.waitKey(0)
 
 def find_and_replace(image, face):
 
@@ -102,16 +105,16 @@ if __name__ == "__main__":
 
 
     # if gif
-    if imagePath.endswith("gif"):
+    if imagePath.endswith(".gif"):
         # Read in images
-        images = imageio.mimread(imagePath)
+        images = imageio.mimread(imagePath, format="GIF-PIL")
         face = imageio.imread(facePath)
         output = []
 
         for image in images:
             image = find_and_replace(image, face)
             output.append(image)
-            
+
             if DEBUG:
                 cv2.imshow("BGR", output[-1])
                 cv2.waitKey(0)
@@ -122,7 +125,8 @@ if __name__ == "__main__":
         if DEBUG:
             pdb.set_trace()
 
-        imageio.mimwrite(outputPath + ".gif", output)
+        outputPath = outputPath if outputPath.endswith(".gif") else outputPath + ".gif"
+        imageio.mimwrite(outputPath, output)
 
     else:
         # Read the images
@@ -133,5 +137,7 @@ if __name__ == "__main__":
 
         cv2.imshow("Faces found", image)
         cv2.waitKey(0)
+
+        cv2.imwrite(outputPath, image)
 
 # Original from https://realpython.com/blog/python/face-recognition-with-python/
