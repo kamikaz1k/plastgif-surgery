@@ -18,12 +18,17 @@ For OpenCV I used homebrew (`brew install opencv`)
 (I tried to compile from source but I kept encountering issues...)
 
 # How to use
+## Option 1. (and only) Get the source
+```
+git clone https://github.com/kamikaz1k/plastgif-surgery.git
+cd plastgif-surgery
+python face_detec_cv3.py <path/to/image> <path/to/face>[ <path/to/output>]
+```
+
 Takes a source image and a face image as arguments. (Even animated gifs...)
 If the image has any faces, it will copy over it with the face image.
 
 **Arguments:**
-arg1 -- `<source>`
-arg2 -- `<face>`
 
 `<source>` image can be any format supported by opencv
 `<face>` image can be any format support by opencv
@@ -32,11 +37,16 @@ If `<face>` is a PNG with an alpha channel, program will try to use to it
 ## Example Input:
 `python face_detec_cv3.py source.gif face.png output`
 
-source:
+*Source:*
+
 ![source.gif](source.gif)
-face:
+
+*Face:*
+
 ![face.png](face.png)
-Output:
+
+*Output:*
+
 ![output.gif](output.gif)
 
 # All the things I leaned to get this thing working:
