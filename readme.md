@@ -58,4 +58,4 @@ If `<face>` is a PNG with an alpha channel, program will try to use to it
 * Numpy trick 2 (splice indices): http://stackoverflow.com/a/12890573/4765841
 * Numpy trick 3 (swap channels): http://stackoverflow.com/a/39270509/4765841
 
-# Informational blog post coming soon!
+## Interested in how I made this? [Read my post!](https://medium.com/@kamikaz1_k/programming-skills-to-be-useless-while-feeling-productive-776fa97dca35)
