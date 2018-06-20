@@ -7,12 +7,25 @@
 5. ~Run it iteratively for a gif~
 6. Find the face in the face image and use that to rescale instead of the image dimensions
 
-# Dependencies
+
+# Dependencies (3.6)
+imageio==2.3.0
+numpy==1.14.5
+opencv-python==3.4.1.15
+Pillow==5.1.0
+
+## How to setup dependencies
+virtualenv venv # create virtualenv
+source venv/bin/activate # activate virtualenv
+pip install -r requirements.txt
+
+# Dependencies (2.7)
 * numpy==1.12.1
 * opencv==2.4.13.2
 * imageio==2.1.2 (for gif splitting/rendering)
 
-# How to setup dependencies
+
+## (Old) How to setup dependencies
 You can get numpy and imageio from pip
 For OpenCV I used homebrew (`brew install opencv`)
 (I tried to compile from source but I kept encountering issues...)
