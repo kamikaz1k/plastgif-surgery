@@ -1,3 +1,4 @@
+from __future__ import print_function
 import cv2
 import sys
 import numpy as np
@@ -18,7 +19,7 @@ def face_swap(face, img, xPos, yPos):
 
     hasAlpha = True if face.shape[2] == 4 else False
     if hasAlpha and DEBUG:
-        print "It has alpha channel!"
+        print("It has alpha channel!")
 
     if DEBUG:
         cv2.imshow("Face before", face)
@@ -38,7 +39,7 @@ def face_swap(face, img, xPos, yPos):
     blank_image = np.zeros((img.shape[0], img.shape[1], face.shape[2]), np.uint8)
     blank_image[yPos : yPos+face.shape[0], xPos: xPos+face.shape[1]] = face
     # idea from http://stackoverflow.com/questions/12881926/create-a-new-rgb-opencv-image-using-python
-    
+
     # drop the alpha channel
     if hasAlpha:
         face = face[:,:,:3]
@@ -50,7 +51,7 @@ def face_swap(face, img, xPos, yPos):
 
     # Slice the indices for the face location
     img[locs[0]+yPos, locs[1]+xPos, locs[2]] = face[locs[0], locs[1], locs[2]]
-    
+
     if DEBUG:
         cv2.imshow("Face swap", img)
         cv2.waitKey(0)
@@ -58,7 +59,7 @@ def face_swap(face, img, xPos, yPos):
 def find_and_replace(image, face):
 
     # Create the haar cascade
-    cascPath = "haarcascade_frontalface_default.xml" 
+    cascPath = "haarcascade_frontalface_default.xml"
     faceCascade = cv2.CascadeClassifier(cascPath)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -82,14 +83,14 @@ def find_and_replace(image, face):
     return image
 
 if __name__ == "__main__":
-    '''Takes a source image and a face image as arguments. 
-    If the image has any faces, it will copy over it with the face image 
+    '''Takes a source image and a face image as arguments.
+    If the image has any faces, it will copy over it with the face image
 
     Arguments:
     arg1 -- <source>
     arg2 -- <face>
     <source> image can be any format supported by opencv
-    <face> image can be any format support by opencv. 
+    <face> image can be any format support by opencv.
     If <face> is a PNG with an alpha channel, program will try to use to it
     '''
     # Get user supplied values
@@ -101,7 +102,7 @@ if __name__ == "__main__":
     else:
         outputPath = sys.argv[3]
 
-    print "arguments given", imagePath, facePath, outputPath
+    print("arguments given", imagePath, facePath, outputPath)
 
 
     # if gif
