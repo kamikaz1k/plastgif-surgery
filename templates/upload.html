@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Plastgif Surgery</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+    @media (min-width: 1200px) {
+        .container{
+            max-width: 970px;
+        }
+    }
+    .padding-bottom {
+        padding-bottom: 40px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+    <div class="page-header">
+      <h1>Plastgif Surgery <small>Shoop your friends face into a gif</small></h1>
+      <p>But how?</p>
+    </div>
+    </div>
+    <div class="container">
+        <form action="/" method="post" enctype="multipart/form-data">
+            <div class="row padding-bottom">
+                <div class="form-group col-sm-offset-2 col-sm-4">
+                    <label for="gif-img" class="control-label">Gif</label>
+                    <input type="file" name="gif-img" id="gif-img" required/>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label for="face-img" class="control-label">Face</label>
+                    <input type="file" name="face-img" id="face-img" required/>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary text-center">Shoopify</button>
+            </div>
+            <!-- <label for="gif-img">Gif</label> -->
+            <!-- <input type="file" name="gif-img" id="gif-img" /> -->
+            <!-- <label for="face-img">Face</label> -->
+            <!-- <input type="file" name="face-img" id="face-img" /> -->
+        </form>
+    </div>
+</body>
+
+</html>
