@@ -9,15 +9,17 @@
 
 
 # Dependencies (3.6)
-imageio==2.3.0
-numpy==1.14.5
-opencv-python==3.4.1.15
-Pillow==5.1.0
+* imageio==2.3.0
+* numpy==1.14.5
+* opencv-python==3.4.1.15
+* Pillow==5.1.0
 
 ## How to setup dependencies
+```
 virtualenv venv # create virtualenv
 source venv/bin/activate # activate virtualenv
-pip install -r requirements.txt
+pip install -r requirements.txt # install dependencies
+```
 
 # Dependencies (2.7)
 * numpy==1.12.1
@@ -31,11 +33,28 @@ For OpenCV I used homebrew (`brew install opencv`)
 (I tried to compile from source but I kept encountering issues...)
 
 # How to use
-## Option 1. (and only) Get the source
+## First, get the source:
 ```
 git clone https://github.com/kamikaz1k/plastgif-surgery.git
+```
+
+## Option 1. Serve as a web app
+```
+pip install flask # install flask for webserver
+python app.py # start server
+# visit http://localhost:5000/
+```
+
+## Option 2. Run in your own python script
+```
+import face_swap
+face_swap.plastgifSurgery("source.gif", "face.png", "output.gif")
+```
+
+## Option 3. Run from console
+```
 cd plastgif-surgery
-python face_detec_cv3.py <path/to/image> <path/to/face>[ <path/to/output>]
+python face_detect_cv3.py <path/to/image> <path/to/face>[ <path/to/output>]
 ```
 
 Takes a source image and a face image as arguments. (Even animated gifs...)
@@ -47,8 +66,8 @@ If the image has any faces, it will copy over it with the face image.
 `<face>` image can be any format support by opencv
 If `<face>` is a PNG with an alpha channel, program will try to use to it
 
-## Example Input:
-`python face_detec_cv3.py source.gif face.png output`
+# Example Input:
+`python face_detect_cv3.py source.gif face.png output`
 
 *Source:*
 
