@@ -74,6 +74,8 @@ def plastgifSurgery(bgPath, facePath, outputPath="output"):
     if bgPath.endswith(".gif"):
         # Read in images
         images = getFrames(bgPath)
+        durations = [image.meta['duration']/1000 for image in images]
+
         face = readTransparentImage(facePath, mode="RGB")
         output = []
 
@@ -82,7 +84,7 @@ def plastgifSurgery(bgPath, facePath, outputPath="output"):
             output.append(image)
 
         outputPath = outputPath if outputPath.endswith(".gif") else outputPath + ".gif"
-        imageio.mimwrite(outputPath, output)
+        imageio.mimwrite(outputPath, output, duration=durations)
 
     else:
         # Read the images
