@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Success</title>
+    <title>Breadown</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -26,18 +26,19 @@
         </div>
     </div>
     <div class="container text-center">
-        <div class="row">
-            <img src="{{images[0]}}">
-            <p>Your <strong>Gif</strong></p>
-            <img src="{{images[1]}}">
-            <p>Your <strong>Face</strong></p>
+        {% for frame in frames %}
+        <div class="col-md-2">
+            <img id="frame-{{loop.index}}" src="{{frame['url']}}">
+            <p>Frame {{loop.index + 1}}</p>
+            <p>face_box_x: {{frame['face_box_x']}}</p>
+            <p>face_box_y: {{frame['face_box_y']}}</p>
+            <p>face_box_w: {{frame['face_box_w']}}</p>
+            <p>face_box_h: {{frame['face_box_h']}}</p>
+            <p>duration: {{frame['duration']}}</p>
         </div>
-        <div class="row">
-            <img src="{{images[2]}}">
-            <p>Your <strong>Result</strong></p>
-        </div>
+        {% endfor %}
         <div class="padding-bottom">
-            <a href="/">Go Back to Uploads</a>
+            <a href="/">Generate Gif</a>
         </div>
     </div>
 </body>
