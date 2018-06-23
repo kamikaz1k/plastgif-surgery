@@ -1,3 +1,4 @@
+from __future__ import print_function
 import cv2
 import imageio
 import numpy as np
@@ -42,9 +43,14 @@ def findFaces(image, cascPath="haarcascade_frontalface_default.xml"):
     )
     return faces
 
-def getFrames(image):
-    frames = imageio.mimread(image)
+def getFrames(imagePath):
+    frames = imageio.mimread(imagePath)
     return frames
+
+def saveGifImage(image, imagePath):
+    # since imageio reads as RGB
+    # you need to save with imageio too
+    imageio.imwrite(imagePath, image)
 
 def readImage(imagePath):
     return cv2.imread(imagePath)

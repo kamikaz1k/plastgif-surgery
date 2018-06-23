@@ -65,7 +65,47 @@ def breakdownFramesWithFaces(request):
     if not gif_img or not face_img:
         return filenames
 
-    frames = face_swap.getFrames()
+    timestamp = str(round(time.time() * 1000)) + "-"
+    gif_img_filename, gif_img_filepath = saveImage(gif_img, timestamp)
+    face_img_filename, face_img_filepath = saveImage(face_img, timestamp)
+
+    frames = face_swap.getFrames(gif_img_filepath)
+    faces = [face_swap.findFaces(frame) for frame in frames]
+
+    filename_components = gif_img_filename.split(".")
+    path_components = gif_img_filepath.split(".")
+    filename_components.insert(-1, "0")
+    path_components.insert(-1, "0")
+    frame_filename_list = []
+
+    for idx, frame in enumerate(frames):
+        frame_num = str(idx)
+        frame_num.zfill(3)
+        path_components[-2] = frame_num
+        filename_components[-2] = frame_num
+
+        frame_file_path = ".".join(path_components)
+        face_swap.saveGifImage(image=frame, imagePath=frame_file_path)
+        frame_filename_list.append(".".join(filename_components))
+
+    return [
+        buildFrameFaceDict(
+            url_for('uploads', filename=frame_filename_list[idx]),
+            frames[idx].meta['duration']/1000,
+            *faces[idx][0]
+        )
+        for idx in range(len(frames))
+    ]
+
+def buildFrameFaceDict(url, duration, face_box_x, face_box_y, face_box_w, face_box_h):
+    return {
+        'url': url,
+        'face_box_x': face_box_x,
+        'face_box_y': face_box_y,
+        'face_box_w': face_box_w,
+        'face_box_h': face_box_h,
+        'duration': duration
+    }
 
 def saveImage(file, prepend_name_with=""):
     filename = prepend_name_with + secure_filename(file.filename)
@@ -75,39 +115,33 @@ def saveImage(file, prepend_name_with=""):
 
 @app.route("/", methods=["GET"])
 def main():
-    return render_template(
-        "upload.html",
-       title="Title",
-       msg="My Msg"
-    )
+    return render_template("upload.html")
 
 @app.route("/", methods=["POST"])
 def upload():
     files_names = createShoop(request)
-    return render_template(
-        "success.html",
-        msg="Success",
-        images=files_names
-    )
-
+    return render_template("success.html", images=files_names)
 
 @app.route("/surgery", methods=["POST"])
 def surgery():
     files_names = createShoop(request)
     return json.dumps({"url": files_names[2]})
 
-@app.route("/surgery/breakdown", methods=["POST"])
+@app.route("/breakdown", methods=["GET"])
 def breakdown():
+    return render_template("upload-breakdown.html")
+
+@app.route("/breakdown", methods=["POST"])
+def breakdown_frames():
     frames = breakdownFramesWithFaces(request)
     # frames = {
     #     'url', 'face_box_x', 'face_box_y', 'face_box_w', 'face_box_h', 'duration'
     # }
     # error msg?
     return render_template(
-        "breakdown.html",
+        "breakdown.htm.j2",
         frames=frames
     )
-
 
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploads(filename):
