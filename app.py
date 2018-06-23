@@ -16,6 +16,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 from face_swap import plastgifSurgery
+import face_swap
 
 # from flask_socketio import SocketIO, emit
 
@@ -34,28 +35,43 @@ def createShoop(request):
     face_img = request.files['face-img']
     files_names = []
 
-    if gif_img and face_img:#and allowed_file(file.filename):
-        timestamp = str(round(time.time() * 1000)) + "-"
-        filename = timestamp + secure_filename(gif_img.filename)
-        imagePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        gif_img.save(imagePath)
-        files_names.append(url_for('uploads', filename=filename))
+    if not gif_img or not face_img:
+        return []
 
-        filename = timestamp + secure_filename(face_img.filename)
-        facePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        face_img.save(facePath)
-        files_names.append(url_for('uploads', filename=filename))
+    timestamp = str(round(time.time() * 1000)) + "-"
+    gif_img_filename, gif_img_filepath = saveImage(gif_img, timestamp)
+    face_img_filename, face_img_filepath = saveImage(face_img, timestamp)
 
-        outputFileName = timestamp + "output"
-        outputPath = os.path.join(app.config['UPLOAD_FOLDER'], outputFileName)
+    output_file_name = timestamp + "output"
+    output_file_path = os.path.join(app.config['UPLOAD_FOLDER'], output_file_name)
 
-        outputPath = plastgifSurgery(imagePath, facePath, outputPath)
-        outputFileName = outputFileName + "." + outputPath.split(".")[-1]
+    output_file_path = plastgifSurgery(gif_img_filepath, face_img_filepath, output_file_path)
+    output_file_name = output_file_name + "." + output_file_path.split(".")[-1]
 
-        files_names.append(url_for('uploads', filename=outputFileName, _external=True))
+    filenames = [
+        url_for('uploads', filename=gif_img_filename),
+        url_for('uploads', filename=face_img_filename),
+        url_for('uploads', filename=output_file_name)
+    ]
 
-    return files_names
+    return filenames
 
+def breakdownFramesWithFaces(request):
+
+    gif_img = request.files['gif-img']
+    face_img = request.files['face-img']
+    filenames = []
+
+    if not gif_img or not face_img:
+        return filenames
+
+    frames = face_swap.getFrames()
+
+def saveImage(file, prepend_name_with=""):
+    filename = prepend_name_with + secure_filename(file.filename)
+    image_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(image_file_path)
+    return filename, image_file_path
 
 @app.route("/", methods=["GET"])
 def main():
@@ -80,10 +96,23 @@ def surgery():
     files_names = createShoop(request)
     return json.dumps({"url": files_names[2]})
 
+@app.route("/surgery/breakdown", methods=["POST"])
+def breakdown():
+    frames = breakdownFramesWithFaces(request)
+    # frames = {
+    #     'url', 'face_box_x', 'face_box_y', 'face_box_w', 'face_box_h', 'duration'
+    # }
+    # error msg?
+    return render_template(
+        "breakdown.html",
+        frames=frames
+    )
+
 
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploads(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 ### Websockets Handlers
 # @socketio.on('connect')
