@@ -26,6 +26,7 @@ app.config["DEBUG"] = True
 # socketio = SocketIO(app)
 
 app.config['UPLOAD_FOLDER'] = './public/uploads'
+app.config['PUBLIC_FOLDER'] = './public'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 
@@ -33,14 +34,14 @@ def createShoop(request):
 
     gif_img = request.files['gif-img']
     face_img = request.files['face-img']
-    files_names = []
 
     if not gif_img or not face_img:
         return []
 
-    timestamp = str(round(time.time() * 1000)) + "-"
-    gif_img_filename, gif_img_filepath = saveImage(gif_img, timestamp)
-    face_img_filename, face_img_filepath = saveImage(face_img, timestamp)
+    # timestamp = str(round(time.time() * 1000)) + "-"
+    # gif_img_filename, gif_img_filepath = saveImage(gif_img, timestamp)
+    # face_img_filename, face_img_filepath = saveImage(face_img, timestamp)
+    gif_img_filename, face_img_filename = saveInputPictures(gif_img, face_img)
 
     output_file_name = timestamp + "output"
     output_file_path = os.path.join(app.config['UPLOAD_FOLDER'], output_file_name)
@@ -56,54 +57,57 @@ def createShoop(request):
 
     return filenames
 
-def breakdownFramesWithFaces(request):
+def savePicsFromRequest(request):
 
     gif_img = request.files['gif-img']
     face_img = request.files['face-img']
-    filenames = []
 
     if not gif_img or not face_img:
-        return filenames
+        return []
+
+    gif_img_filename, face_img_filename = saveInputPictures(gif_img, face_img)
+
+    return {
+        'gif_url': url_for('uploads', filename=gif_img_filename),
+        'face_url': url_for('uploads', filename=face_img_filename)
+    }
+
+def saveInputPictures(gif_img, face_img):
 
     timestamp = str(round(time.time() * 1000)) + "-"
     gif_img_filename, gif_img_filepath = saveImage(gif_img, timestamp)
     face_img_filename, face_img_filepath = saveImage(face_img, timestamp)
 
+    return gif_img_filename, face_img_filename
+
+def breakdownFramesWithFaces(gif_url):
+
+    gif_img_filepath = getFilepathFromUrl(gif_url)
+
     frames = face_swap.getFrames(gif_img_filepath)
     faces = [face_swap.findFaces(frame) for frame in frames]
 
-    filename_components = gif_img_filename.split(".")
-    path_components = gif_img_filepath.split(".")
-    filename_components.insert(-1, "0")
-    path_components.insert(-1, "0")
-    frame_filename_list = []
-
-    for idx, frame in enumerate(frames):
-        frame_num = str(idx)
-        frame_num.zfill(3)
-        path_components[-2] = frame_num
-        filename_components[-2] = frame_num
-
-        frame_file_path = ".".join(path_components)
-        face_swap.saveGifImage(image=frame, imagePath=frame_file_path)
-        frame_filename_list.append(".".join(filename_components))
-
     return [
         buildFrameFaceDict(
-            url_for('uploads', filename=frame_filename_list[idx]),
+            # url_for('uploads', filename=frame_filename_list[idx]),
             frames[idx].meta['duration']/1000,
             *faces[idx][0]
         )
         for idx in range(len(frames))
     ]
 
-def buildFrameFaceDict(url, duration, face_box_x, face_box_y, face_box_w, face_box_h):
+def getFilepathFromUrl(public_upload_file_url):
+    url_prefix = url_for('uploads', filename="")
+    filename = public_upload_file_url.replace(url_prefix, "")
+    return os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+def buildFrameFaceDict(duration, face_box_x, face_box_y, face_box_w, face_box_h):
     return {
-        'url': url,
-        'face_box_x': face_box_x,
-        'face_box_y': face_box_y,
-        'face_box_w': face_box_w,
-        'face_box_h': face_box_h,
+        # 'url': url,
+        'face_box_x': int(face_box_x),
+        'face_box_y': int(face_box_y),
+        'face_box_w': int(face_box_w),
+        'face_box_h': int(face_box_h),
         'duration': duration
     }
 
@@ -127,25 +131,45 @@ def surgery():
     files_names = createShoop(request)
     return json.dumps({"url": files_names[2]})
 
-@app.route("/breakdown", methods=["GET"])
+@app.route("/breakdown", methods=["GET", "POST"])
 def breakdown():
-    return render_template("upload-breakdown.html")
 
-@app.route("/breakdown", methods=["POST"])
-def breakdown_frames():
-    frames = breakdownFramesWithFaces(request)
-    # frames = {
-    #     'url', 'face_box_x', 'face_box_y', 'face_box_w', 'face_box_h', 'duration'
-    # }
-    # error msg?
+    if request.method == "GET":
+        return render_template("upload-breakdown.html")
+
+    url_dict = savePicsFromRequest(request)
+
+    return redirect(url_for('breakdown_edit', gif=url_dict['gif_url'], face=url_dict['face_url']))
+
+@app.route("/breakdown/edit", methods=["GET"])
+def breakdown_edit():
+
+    gif_url = request.args.get('gif')
+    face_url = request.args.get('face')
+    # import pdb; pdb.set_trace()
+    # frames = breakdownFramesWithFaces(gif_url)
+    frames = [{"duration":0.03,"face_box_h":73,"face_box_w":73,"face_box_x":286,"face_box_y":148},{"duration":0.03,"face_box_h":75,"face_box_w":75,"face_box_x":271,"face_box_y":147},{"duration":0.03,"face_box_h":77,"face_box_w":77,"face_box_x":257,"face_box_y":146},{"duration":0.03,"face_box_h":79,"face_box_w":79,"face_box_x":256,"face_box_y":145},{"duration":0.03,"face_box_h":80,"face_box_w":80,"face_box_x":244,"face_box_y":145},{"duration":0.03,"face_box_h":80,"face_box_w":80,"face_box_x":235,"face_box_y":143},{"duration":0.03,"face_box_h":79,"face_box_w":79,"face_box_x":232,"face_box_y":140},{"duration":0.03,"face_box_h":79,"face_box_w":79,"face_box_x":232,"face_box_y":140},{"duration":0.03,"face_box_h":72,"face_box_w":72,"face_box_x":240,"face_box_y":139},{"duration":0.03,"face_box_h":75,"face_box_w":75,"face_box_x":239,"face_box_y":138},{"duration":0.03,"face_box_h":73,"face_box_w":73,"face_box_x":253,"face_box_y":136},{"duration":0.03,"face_box_h":68,"face_box_w":68,"face_box_x":269,"face_box_y":139},{"duration":0.03,"face_box_h":67,"face_box_w":67,"face_box_x":285,"face_box_y":139},{"duration":0.03,"face_box_h":68,"face_box_w":68,"face_box_x":299,"face_box_y":141},{"duration":0.03,"face_box_h":69,"face_box_w":69,"face_box_x":298,"face_box_y":141},{"duration":0.03,"face_box_h":64,"face_box_w":64,"face_box_x":314,"face_box_y":147},{"duration":0.03,"face_box_h":65,"face_box_w":65,"face_box_x":324,"face_box_y":149},{"duration":0.03,"face_box_h":73,"face_box_w":73,"face_box_x":307,"face_box_y":148},{"duration":0.03,"face_box_h":72,"face_box_w":72,"face_box_x":298,"face_box_y":151}]
+
     return render_template(
         "breakdown.htm.j2",
-        frames=frames
+        gif_url=gif_url,
+        face_url=face_url,
+        frames=frames,
+        framesJson=json.dumps(frames)
     )
+
+@app.route("/build", methods=["POST"])
+def build():
+    path_to_built_gif = buildGifFromBreakdown(request)
+    return
 
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploads(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route("/public/<filename>", methods=["GET"])
+def public(filename):
+    return send_from_directory(app.config['PUBLIC_FOLDER'], filename)
 
 
 ### Websockets Handlers
