@@ -75,6 +75,28 @@ def replaceFaces(image, face, faceIndex=-1):
 
     return image
 
+def swapFacesUsingFrameData(bgPath, facePath, outputPath, frames):
+
+    if not bgPath.endswith(".gif"):
+        raise ValueError("bgPath must be a gif")
+
+    # Read in images
+    images = getFrames(bgPath)
+    durations = [frame['duration'] for frame in frames]
+
+    face = readTransparentImage(facePath, mode="RGB")
+    output = []
+
+    for idx, image in enumerate(images):
+        # image = replaceFaces(image, face)
+        image = copyFaceWithinBox(image, face, frames[idx]['x'], frames[idx]['y'], frames[idx]['w'], frames[idx]['h'])
+        output.append(image)
+
+    outputPath = outputPath if outputPath.endswith(".gif") else outputPath + ".gif"
+    imageio.mimwrite(outputPath, output, duration=durations)
+
+    return outputPath
+
 def plastgifSurgery(bgPath, facePath, outputPath="output"):
 
     if bgPath.endswith(".gif"):
