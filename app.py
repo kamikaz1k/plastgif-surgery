@@ -38,7 +38,7 @@ def createShoop(request):
     if not gif_img or not face_img:
         return []
 
-    # timestamp = str(round(time.time() * 1000)) + "-"
+    timestamp = str(round(time.time() * 1000)) + "-"
     # gif_img_filename, gif_img_filepath = saveImage(gif_img, timestamp)
     # face_img_filename, face_img_filepath = saveImage(face_img, timestamp)
     gif_img_filename, face_img_filename = saveInputPictures(gif_img, face_img)
@@ -97,9 +97,12 @@ def breakdownFramesWithFaces(gif_url):
     ]
 
 def getFilepathFromUrl(public_upload_file_url):
-    url_prefix = url_for('uploads', filename="")
-    filename = public_upload_file_url.replace(url_prefix, "")
+    filename = getFilenameFromUrl(public_upload_file_url)
     return os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+def getFilenameFromUrl(public_upload_file_url):
+    url_prefix = url_for('uploads', filename="")
+    return public_upload_file_url.replace(url_prefix, "")
 
 def buildFrameFaceDict(duration, face_box_x, face_box_y, face_box_w, face_box_h):
     return {
@@ -109,6 +112,43 @@ def buildFrameFaceDict(duration, face_box_x, face_box_y, face_box_w, face_box_h)
         'face_box_w': int(face_box_w),
         'face_box_h': int(face_box_h),
         'duration': duration
+    }
+
+def buildGifFromBreakdown(request):
+    gif_url = request.json['gif_url']
+    face_url = request.json['face_url']
+    frames = request.json['frames']
+
+    frames = [
+        {
+            'x': frame['face_box_x'],
+            'y': frame['face_box_y'],
+            'w': frame['face_box_w'],
+            'h': frame['face_box_h'],
+            'duration': frame['duration']
+        }
+        for frame in frames
+    ]
+
+    gif_img_filepath = getFilepathFromUrl(gif_url)
+    face_img_filepath = getFilepathFromUrl(face_url)
+
+    timestamp = re.match("^[0-9]+", getFilenameFromUrl(gif_url))[0]
+    output_file_name = timestamp + "-output"
+    output_file_path = os.path.join(app.config['UPLOAD_FOLDER'], output_file_name)
+
+    output_file_path = face_swap.swapFacesUsingFrameData(
+        gif_img_filepath,
+        face_img_filepath,
+        output_file_path,
+        frames
+    )
+    output_file_name = output_file_name + "." + output_file_path.split(".")[-1]
+    import pdb; pdb.set_trace()
+    return {
+        'gif_url': gif_url,
+        'face_url': face_url,
+        'result_url': url_for('uploads', filename=output_file_name)
     }
 
 def saveImage(file, prepend_name_with=""):
@@ -158,10 +198,24 @@ def breakdown_edit():
         framesJson=json.dumps(frames)
     )
 
-@app.route("/build", methods=["POST"])
-def build():
-    path_to_built_gif = buildGifFromBreakdown(request)
-    return
+@app.route("/breakdown/build", methods=["POST", "GET"])
+def breakdown_build():
+    if request.method == "POST":
+        url_dict = buildGifFromBreakdown(request)
+        return redirect(
+            url_for(
+                'breakdown_build',
+                gif=url_dict['gif_url'],
+                face=url_dict['face_url'],
+                result=url_dict['result_url']
+            )
+        )
+
+    return render_template(
+        "success.html",
+        images=[request.args.get('gif'), request.args.get('face'), request.args.get('result')]
+    )
+
 
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploads(filename):
