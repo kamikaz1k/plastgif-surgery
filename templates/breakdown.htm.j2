@@ -35,8 +35,11 @@
         <div class="btn btn-outline-primary next">
             Next <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
         </div>
+        <div class="btn btn-outline-primary draw-box">Box</div>
         <img id="frame-viewer" src="{{gif_url}}" />
         <p id="face" style="visibility: hidden;">{{face_url}}</p>
+
+        <img id="face" src="{{face_url}}"/>
         <div class="padding-bottom">
             <div class="btn btn-primary" href="/">Generate Gif</div>
         </div>
@@ -80,17 +83,32 @@
                 incrementFrameAndUpdate(window.rub, 1);
             });
 
+            document.querySelector(".draw-box").addEventListener('click', function() {
+                drawBoxOnFrame();
+            });
+
         }
 
         function incrementFrameAndUpdate(rub, increment) {
             var curr = rub.get_current_frame();
             rub.move_to(curr + increment);
             updateFrameIndicator();
+            drawBoxOnFrame();
         }
 
         function updateFrameIndicator() {
             document.querySelector(".frame-num").innerHTML = "Frame: " + rub.get_current_frame();
             document.querySelector(".frame-face-dims").innerHTML = JSON.stringify(window.frames[rub.get_current_frame()]);
+        }
+
+        function drawBoxOnFrame() {
+            var box = window.frames[window.rub.get_current_frame()];
+            var c = rub.get_canvas();
+            var ctx = c.getContext("2d");
+            ctx.globalCompositeOperation = "source-over"; // layer on top
+            ctx.strokeRect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
+            // ctx.rect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
+            // ctx.stroke();
         }
     </script>
 </body>
