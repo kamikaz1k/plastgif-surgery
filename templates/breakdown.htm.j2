@@ -41,7 +41,7 @@
 
         <img id="face" src="{{face_url}}"/>
         <div class="padding-bottom">
-            <div class="btn btn-primary" href="/">Generate Gif</div>
+            <div class="btn btn-primary" id="generate-gif">Generate Gif</div>
         </div>
     </div>
     <script type="text/javascript">
@@ -50,6 +50,27 @@
             console.log("DOM fully loaded and parsed");
             var img = document.querySelector("#frame-viewer");
             window.rub = supa(img);
+
+            document.querySelector("#generate-gif").addEventListener('click', function() {
+                // POST to "/breakdown/build"
+                fetch("/breakdown/build", {
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        gif_url: "{{gif_url}}",
+                        face_url: "{{face_url}}",
+                        frames: window.frames
+                    })
+                }).then(function(response) {
+                    console.log(response);
+                    if (response.redirected) {
+                        window.location = response.url;
+                    }
+                });
+            });
 
             function supa (imgElement) {
                 if (/.*\.gif/.test(imgElement.src)) {
