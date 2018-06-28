@@ -26,7 +26,7 @@ app.config["DEBUG"] = True
 # socketio = SocketIO(app)
 
 app.config['UPLOAD_FOLDER'] = './public/uploads'
-app.config['PUBLIC_FOLDER'] = './public'
+app.config['LIB_FOLDER'] = './lib'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 
@@ -167,9 +167,9 @@ def build():
 def uploads(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-@app.route("/public/<filename>", methods=["GET"])
+@app.route("/lib/<filename>", methods=["GET"])
 def public(filename):
-    return send_from_directory(app.config['PUBLIC_FOLDER'], filename)
+    return send_from_directory(app.config['LIB_FOLDER'], filename)
 
 
 ### Websockets Handlers

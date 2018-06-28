@@ -2,11 +2,12 @@
 <html lang="en">
 
 <head>
-    <title>Breadown</title>
+    <title>Gif Breakdown</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="/lib/libgif.js"></script>
     <style>
     @media (min-width: 1200px) {
         .container{
@@ -22,25 +23,76 @@
 <body>
     <div class="container">
         <div class="page-header">
-          <h1>Surgery Successful!</h1>
+          <h1>Edit face positions</h1>
+          <p class="frame-num"></p>
+          <p class="frame-face-dims"></p>
         </div>
     </div>
     <div class="container text-center">
-        {% for frame in frames %}
-        <div class="col-md-2">
-            <img id="frame-{{loop.index}}" src="{{frame['url']}}">
-            <p>Frame {{loop.index + 1}}</p>
-            <p>face_box_x: {{frame['face_box_x']}}</p>
-            <p>face_box_y: {{frame['face_box_y']}}</p>
-            <p>face_box_w: {{frame['face_box_w']}}</p>
-            <p>face_box_h: {{frame['face_box_h']}}</p>
-            <p>duration: {{frame['duration']}}</p>
+        <div class="btn btn-outline-primary prev">
+            <span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Prev
         </div>
-        {% endfor %}
+        <div class="btn btn-outline-primary next">
+            Next <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
+        </div>
+        <img id="frame-viewer" src="{{gif_url}}" />
+        <p id="face" style="visibility: hidden;">{{face_url}}</p>
         <div class="padding-bottom">
-            <a href="/">Generate Gif</a>
+            <div class="btn btn-primary" href="/">Generate Gif</div>
         </div>
     </div>
+    <script type="text/javascript">
+        window.frames = {{framesJson}};
+        document.addEventListener("DOMContentLoaded", function(event) {
+            console.log("DOM fully loaded and parsed");
+            var img = document.querySelector("#frame-viewer");
+            window.rub = supa(img);
+
+            function supa (imgElement) {
+                if (/.*\.gif/.test(imgElement.src)) {
+                    var rub = new SuperGif({ gif: imgElement, loop_mode: false, auto_play: false } );
+                    rub.load(initGif);
+                    return rub;
+                }
+            }
+
+            function initGif() {
+                console.log('oh hey, now the gif is loaded');
+                window.rub.pause();
+                window.rub.move_to(0);
+                updateFrameIndicator();
+                console.log("moved to first frame");
+
+                attachClickListeners();
+                console.log("click listeners attached");
+            }
+        });
+
+        function attachClickListeners() {
+            var prev = document.querySelector(".prev");
+            var next = document.querySelector(".next");
+
+            prev.addEventListener('click', function() {
+                incrementFrameAndUpdate(window.rub, -1);
+            });
+
+            next.addEventListener('click', function() {
+                incrementFrameAndUpdate(window.rub, 1);
+            });
+
+        }
+
+        function incrementFrameAndUpdate(rub, increment) {
+            var curr = rub.get_current_frame();
+            rub.move_to(curr + increment);
+            updateFrameIndicator();
+        }
+
+        function updateFrameIndicator() {
+            document.querySelector(".frame-num").innerHTML = "Frame: " + rub.get_current_frame();
+            document.querySelector(".frame-face-dims").innerHTML = JSON.stringify(window.frames[rub.get_current_frame()]);
+        }
+    </script>
 </body>
 
 </html>
