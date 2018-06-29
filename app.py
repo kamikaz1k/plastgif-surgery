@@ -45,6 +45,8 @@ def createShoop(request):
 
     output_file_name = timestamp + "output"
     output_file_path = os.path.join(app.config['UPLOAD_FOLDER'], output_file_name)
+    gif_img_filepath = os.path.join(app.config['UPLOAD_FOLDER'], gif_img_filename)
+    face_img_filepath = os.path.join(app.config['UPLOAD_FOLDER'], face_img_filename)
 
     output_file_path = plastgifSurgery(gif_img_filepath, face_img_filepath, output_file_path)
     output_file_name = output_file_name + "." + output_file_path.split(".")[-1]
@@ -161,13 +163,27 @@ def saveImage(file, prepend_name_with=""):
 def main():
     return render_template("upload.html")
 
-@app.route("/", methods=["POST"])
-def upload():
-    files_names = createShoop(request)
-    return render_template("success.html", images=files_names)
-
-@app.route("/surgery", methods=["POST"])
+@app.route("/surgery", methods=["GET", "POST"])
 def surgery():
+    if request.method == "POST":
+        files_names = createShoop(request)
+        return redirect(
+            url_for(
+                'surgery',
+                gif=files_names[0],
+                face=files_names[1],
+                result=files_names[2]
+            )
+        )
+
+    return render_template("success.html", images=[
+        request.args.get('gif'),
+        request.args.get('face'),
+        request.args.get('result')
+    ])
+
+@app.route("/surgery.json", methods=["POST"])
+def surgery_json():
     files_names = createShoop(request)
     return json.dumps({"url": files_names[2]})
 
