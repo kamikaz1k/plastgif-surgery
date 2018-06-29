@@ -134,6 +134,8 @@
             var box = window.frames[window.rub.get_current_frame()];
             var c = rub.get_canvas();
             var ctx = c.getContext("2d");
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 3;
             ctx.globalCompositeOperation = "source-over"; // layer on top
             ctx.strokeRect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
             // ctx.rect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
