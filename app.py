@@ -144,7 +144,7 @@ def buildGifFromBreakdown(request):
         frames
     )
     output_file_name = output_file_name + "." + output_file_path.split(".")[-1]
-    import pdb; pdb.set_trace()
+
     return {
         'gif_url': gif_url,
         'face_url': face_url,

@@ -88,8 +88,14 @@ def swapFacesUsingFrameData(bgPath, facePath, outputPath, frames):
     output = []
 
     for idx, image in enumerate(images):
-        # image = replaceFaces(image, face)
-        image = copyFaceWithinBox(image, face, frames[idx]['x'], frames[idx]['y'], frames[idx]['w'], frames[idx]['h'])
+        image = copyFaceWithinBox(
+            image,
+            face,
+            frames[idx]['x'],
+            frames[idx]['y'],
+            frames[idx]['w'],
+            frames[idx]['h']
+        )
         output.append(image)
 
     outputPath = outputPath if outputPath.endswith(".gif") else outputPath + ".gif"
