@@ -24,18 +24,20 @@
     <div class="container">
         <div class="page-header">
           <h1>Edit face positions</h1>
-          <p class="frame-num"></p>
-          <p class="frame-face-dims"></p>
+          <p class="frame-num">Generating Frames</p>
+          <p class="frame-face-dims">{...}</p>
         </div>
     </div>
     <div class="container text-center">
-        <div class="btn btn-outline-primary prev">
-            <span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Prev
+        <div class="controls">
+            <div class="btn btn-outline-primary prev">
+                <span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Prev
+            </div>
+            <div class="btn btn-outline-primary next">
+                Next <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
+            </div>
+            <div class="btn btn-outline-primary draw-box">Box</div>
         </div>
-        <div class="btn btn-outline-primary next">
-            Next <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
-        </div>
-        <div class="btn btn-outline-primary draw-box">Box</div>
         <img id="frame-viewer" src="{{gif_url}}" />
         <p id="face" style="visibility: hidden;">{{face_url}}</p>
 
@@ -50,6 +52,8 @@
             console.log("DOM fully loaded and parsed");
             var img = document.querySelector("#frame-viewer");
             window.rub = supa(img);
+
+            disableControls();
 
             document.querySelector("#generate-gif").addEventListener('click', function() {
                 // POST to "/breakdown/build"
@@ -89,6 +93,7 @@
 
                 attachClickListeners();
                 console.log("click listeners attached");
+                enableControls();
             }
         });
 
@@ -114,15 +119,18 @@
             var curr = rub.get_current_frame();
             rub.move_to(curr + increment);
             updateFrameIndicator();
-            drawBoxOnFrame();
         }
 
         function updateFrameIndicator() {
             document.querySelector(".frame-num").innerHTML = "Frame: " + rub.get_current_frame();
             document.querySelector(".frame-face-dims").innerHTML = JSON.stringify(window.frames[rub.get_current_frame()]);
+            drawBoxOnFrame();
         }
 
         function drawBoxOnFrame() {
+            // clear frame by redrawing image before drawing new frame
+            window.rub.move_to(window.rub.get_current_frame());
+
             var box = window.frames[window.rub.get_current_frame()];
             var c = rub.get_canvas();
             var ctx = c.getContext("2d");
@@ -130,6 +138,18 @@
             ctx.strokeRect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
             // ctx.rect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
             // ctx.stroke();
+        }
+
+        function disableControls() {
+            document.querySelectorAll(".controls .btn").forEach(el => {
+                el.classList.add("disabled");
+            });
+        }
+
+        function enableControls() {
+            document.querySelectorAll(".controls .btn").forEach(el => {
+                el.classList.remove("disabled");
+            });
         }
     </script>
 </body>
