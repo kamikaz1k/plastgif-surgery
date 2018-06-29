@@ -15,17 +15,24 @@
     .padding-bottom {
         padding-bottom: 40px;
     }
+    #action {
+        letter-spacing: 1em;
+        font-weight: bold;
+        font-size: 1.4em;
+    }
     </style>
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function(event) {
             // if you click on auto-surgery form.action = "/surgery"
             document.querySelector("#auto-surgery").addEventListener('click', function () {
                 document.querySelector("form").action = "/surgery";
+                document.querySelector("#action").innerHTML = "SEEK AND DESTROY";
                 // console.log(document.querySelector("form"), document.querySelector("form").action);
             });
             // if you click on manual-surgery form.action = "/breakdown"
             document.querySelector("#manual-surgery").addEventListener('click', function () {
                 document.querySelector("form").action = "/breakdown";
+                document.querySelector("#action").innerHTML = "BREAKDOWN";
                 // console.log(document.querySelector("form"), document.querySelector("form").action);
             });
         });
@@ -36,7 +43,6 @@
     <div class="container">
         <div class="page-header text-center">
           <h1>Plastgif Surgery <small>Shoop your friends face into a gif</small></h1>
-          <p>But how?</p>
         </div>
     </div>
     <div class="container">
@@ -52,19 +58,19 @@
                 </div>
             </div>
             <div class="row text-center padding-bottom">
-                <label class="radio-inline">
-                    <input type="radio" name="inlineRadioOptions" id="auto-surgery" checked> Just Shoop It!
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="inlineRadioOptions" id="manual-surgery"> Breakdown Gif
-                </label>
+                <div class="btn btn-danger text-center" id="auto-surgery">Just Shoop It!</div>
+                <div class="btn btn-success text-center" id="manual-surgery">Breakdown Gif</div>
             </div>
 
-            <div class="text-center">
+            <div class="text-center padding-bottom">
                 <button type="submit" class="btn btn-primary text-center">Shoopify</button>
             </div>
 
         </form>
+    </div>
+    <div class="text-center">
+        <small>SELECTED MODE:</small>
+        <div id="action">SEEK AND DESTROY</div>
     </div>
 </body>
 
