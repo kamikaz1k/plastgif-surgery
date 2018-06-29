@@ -16,11 +16,25 @@
         padding-bottom: 40px;
     }
     </style>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // if you click on auto-surgery form.action = "/surgery"
+            document.querySelector("#auto-surgery").addEventListener('click', function () {
+                document.querySelector("form").action = "/surgery";
+                // console.log(document.querySelector("form"), document.querySelector("form").action);
+            });
+            // if you click on manual-surgery form.action = "/breakdown"
+            document.querySelector("#manual-surgery").addEventListener('click', function () {
+                document.querySelector("form").action = "/breakdown";
+                // console.log(document.querySelector("form"), document.querySelector("form").action);
+            });
+        });
+    </script>
 </head>
 
 <body>
     <div class="container">
-        <div class="page-header">
+        <div class="page-header text-center">
           <h1>Plastgif Surgery <small>Shoop your friends face into a gif</small></h1>
           <p>But how?</p>
         </div>
@@ -37,13 +51,19 @@
                     <input type="file" name="face-img" id="face-img" required/>
                 </div>
             </div>
+            <div class="row text-center padding-bottom">
+                <label class="radio-inline">
+                    <input type="radio" name="inlineRadioOptions" id="auto-surgery" checked> Just Shoop It!
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="inlineRadioOptions" id="manual-surgery"> Breakdown Gif
+                </label>
+            </div>
+
             <div class="text-center">
                 <button type="submit" class="btn btn-primary text-center">Shoopify</button>
             </div>
-            <!-- <label for="gif-img">Gif</label> -->
-            <!-- <input type="file" name="gif-img" id="gif-img" /> -->
-            <!-- <label for="face-img">Face</label> -->
-            <!-- <input type="file" name="face-img" id="face-img" /> -->
+
         </form>
     </div>
 </body>
