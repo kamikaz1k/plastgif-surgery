@@ -145,10 +145,12 @@
                         var frame_idx = window.rub.get_current_frame();
                         var frame_dim_key = e.target.id;
 
-                        var current_val = window.frames[frame_idx]["face_box_" + frame_dim_key];
-                        var new_val = e.target.value;
-                        console.log("current_val", current_val, "new_val", new_val);
-                        window.frames[frame_idx]["face_box_" + frame_dim_key] = parseInt(new_val, 10);
+                        var currentVal = window.frames[frame_idx]["face_box_" + frame_dim_key];
+                        var newVal = e.target.value || "0";
+                        var parsedValue = parseInt(newVal.replace(/\D/g,""), 10) || 0;
+                        // console.log("currentVal", currentVal, "newVal", newVal, typeof(newVal),
+                        //     newVal.replace(/\D/g,""),parseInt(newVal.replace(/\D/g,""), 10));
+                        window.frames[frame_idx]["face_box_" + frame_dim_key] = parsedValue;
                         drawBoxInFrame();
                         updateInputBoxes();
                     }, 0);
