@@ -22,14 +22,33 @@
 
 <body>
     <div class="container">
-        <div class="page-header">
-          <h1>Edit face positions</h1>
-          <p class="frame-num">Generating Frames</p>
-          <p class="frame-face-dims">{...}</p>
+            <div class="page-header">
+            <h1>Edit face positions</h1>
+            <p class="frame-num">Generating Frames...</p>
         </div>
     </div>
     <div class="container text-center">
         <div class="controls">
+
+            <div class="form-row frame-inputs">
+                <div class="form-group col-sm-3">
+                    <label for="x">x Coord:</label>
+                    <input id="x" type="text" class="form-control" placeholder="loading...">
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="y">y Coord:</label>
+                    <input id="y" type="text" class="form-control" placeholder="loading...">
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="w">width:</label>
+                    <input id="w" type="text" class="form-control" placeholder="loading...">
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="h">height:</label>
+                    <input id="h" type="text" class="form-control" placeholder="loading...">
+                </div>
+            </div>
+
             <div class="btn btn-outline-primary prev">
                 <span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Prev
             </div>
@@ -94,6 +113,8 @@
                 attachClickListeners();
                 console.log("click listeners attached");
                 enableControls();
+
+                attachFormListeners();
             }
         });
 
@@ -110,9 +131,30 @@
             });
 
             document.querySelector(".draw-box").addEventListener('click', function() {
-                drawBoxOnFrame();
+                drawBoxInFrame();
             });
 
+        }
+
+        function attachFormListeners () {
+            document.querySelectorAll(".controls .frame-inputs input").forEach(el => {
+                el.addEventListener("keydown", function(e) {
+                    console.log("target id", e.target.id);
+
+                    setTimeout(function readAfterInputUpdate() {
+                        var frame_idx = window.rub.get_current_frame();
+                        var frame_dim_key = e.target.id;
+
+                        var current_val = window.frames[frame_idx]["face_box_" + frame_dim_key];
+                        var new_val = e.target.value;
+                        console.log("current_val", current_val, "new_val", new_val);
+                        window.frames[frame_idx]["face_box_" + frame_dim_key] = parseInt(new_val, 10);
+                        drawBoxInFrame();
+                        updateInputBoxes();
+                    }, 0);
+
+                });
+            });
         }
 
         function incrementFrameAndUpdate(rub, increment) {
@@ -123,11 +165,11 @@
 
         function updateFrameIndicator() {
             document.querySelector(".frame-num").innerHTML = "Frame: " + rub.get_current_frame();
-            document.querySelector(".frame-face-dims").innerHTML = JSON.stringify(window.frames[rub.get_current_frame()]);
-            drawBoxOnFrame();
+            drawBoxInFrame();
+            updateInputBoxes();
         }
 
-        function drawBoxOnFrame() {
+        function drawBoxInFrame() {
             // clear frame by redrawing image before drawing new frame
             window.rub.move_to(window.rub.get_current_frame());
 
@@ -138,8 +180,14 @@
             ctx.lineWidth = 3;
             ctx.globalCompositeOperation = "source-over"; // layer on top
             ctx.strokeRect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
-            // ctx.rect(box.face_box_x, box.face_box_y, box.face_box_w, box.face_box_h);
-            // ctx.stroke();
+        }
+
+        function updateInputBoxes() {
+            document.querySelectorAll(".controls .frame-inputs input").forEach(el => {
+                var frame_idx = window.rub.get_current_frame();
+                var frame_dim_key = el.id;
+                el.value = window.frames[frame_idx]["face_box_" + frame_dim_key];
+            });
         }
 
         function disableControls() {
